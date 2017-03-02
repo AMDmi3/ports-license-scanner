@@ -55,7 +55,7 @@ def ScanPort(database, nomos, portspath, origin):
         return
 
     VerbosePrint('    Running nomos')
-    nomosoutput = subprocess.run([nomos, '-l', '-d', wrkdir], check=True, encoding='utf-8', stdout=subprocess.PIPE)
+    nomosoutput = subprocess.run(['find', wrkdir, '-type', 'f', '-exec', nomos, '-l', '{}', ';'], check=True, encoding='utf-8', stdout=subprocess.PIPE)
     lines = nomosoutput.stdout.split('\n')
     for line in lines:
         if not line:
