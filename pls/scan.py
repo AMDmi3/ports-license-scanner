@@ -28,6 +28,23 @@ import subprocess
 from pls.verbose import VerbosePrint
 
 
+masks = (
+    '*.c',
+    '*.cc',
+    '*.h',
+    '*.hh',
+    '*.hpp',
+    '*.pl',
+    '*.pm',
+    '*.py',
+    '*.txt',
+    '*.rb',
+    'COPY*',
+    'LICEN[CS]E*',
+)
+
+maskargs = sum([['-o', '-iname', mask] for mask in masks], [])[1:]
+
 def ScanPort(database, nomos, portspath, origin):
     VerbosePrint('  Processing port {}'.format(origin))
 
@@ -55,7 +72,7 @@ def ScanPort(database, nomos, portspath, origin):
         return
 
     VerbosePrint('    Running nomos')
-    nomosoutput = subprocess.run(['find', wrkdir, '-type', 'f', '-exec', nomos, '-l', '{}', ';'], check=True, encoding='utf-8', stdout=subprocess.PIPE)
+    nomosoutput = subprocess.run(['find', wrkdir, '-type', 'f', '-a', '('] + maskargs + [')', '-exec', nomos, '-l', '{}', ';'], check=True, encoding='utf-8', stdout=subprocess.PIPE)
     lines = nomosoutput.stdout.split('\n')
     for line in lines:
         if not line:
