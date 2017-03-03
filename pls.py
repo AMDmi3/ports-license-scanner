@@ -25,8 +25,8 @@ import os
 
 from pls.database import Database
 from pls.path import GetDatabasePath, GetWrkdirprefixPath
-from pls.scan import ScanPorts
-from pls.show import ShowPorts
+from pls.scan import ScanAllPorts, ScanOrigins
+from pls.show import ShowAllPorts, ShowOrigins
 from pls.verbose import EnableVerbose, VerbosePrint
 
 
@@ -43,6 +43,7 @@ def Main():
     parser_scan = subparsers.add_parser('scan', help='scan portstree for license information')
     parser_scan.add_argument('-n', '--nomos', default='nomossa', help='path to fossology nomos license scanner')
     parser_scan.add_argument('-p', '--portspath', default='/usr/ports', help='path to FreeBSD ports tree')
+    parser_scan.add_argument('-t', '--timeout', type=int, default=600, help='nomos scan timeout in seconds')
     parser_scan.add_argument('origins', metavar='origin', nargs='*', help='port origins to process')
     parser_scan.set_defaults(mode='scan')
 
@@ -69,10 +70,16 @@ def Main():
         database.clear()
     elif options.mode == 'scan':
         VerbosePrint('Running scan')
-        ScanPorts(database=database, nomos=options.nomos, portspath=options.portspath, origins=options.origins)
+        if options.origins:
+            ScanOrigins(database=database, nomos=options.nomos, portspath=options.portspath, timeout=options.timeout, origins=options.origins)
+        else:
+            ScanAllPorts(database=database, nomos=options.nomos, portspath=options.portspath, timeout=options.timeout)
     elif options.mode == 'show':
         VerbosePrint('Showing results')
-        ShowPorts(database=database, origins=options.origins)
+        if options.origins:
+            ShowOrigins(database=database, origins=options.origins)
+        else:
+            ShowAllPorts(database=database)
 
     VerbosePrint('Closing database')
 

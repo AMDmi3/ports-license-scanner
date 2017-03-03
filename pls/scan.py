@@ -45,7 +45,7 @@ masks = (
 
 maskargs = sum([['-o', '-iname', mask] for mask in masks], [])[1:]
 
-def ScanPort(database, nomos, portspath, origin):
+def ScanPort(origin, database, nomos, portspath, timeout):
     VerbosePrint('  Processing port {}'.format(origin))
 
     cursor = database.cursor()
@@ -109,12 +109,12 @@ def ScanPort(database, nomos, portspath, origin):
     VerbosePrint('    Done')
 
 
-def ScanPorts(database, nomos, portspath, origins=None):
-    if origins:
-        for origin in origins:
-            ScanPort(database=database, nomos=nomos, portspath=portspath, origin=origin)
-        return
+def ScanOrigins(database, nomos, portspath, timeout, origins):
+    for origin in origins:
+        ScanPort(origin=origin, database=database, nomos=nomos, portspath=portspath, timeout=timeout)
 
+
+def ScanAllPorts(database, nomos, portspath, timeout):
     VerbosePrint('Getting list of categories')
     catlist = subprocess.run(['make', '-C', portspath, '-V', 'SUBDIR'], check=True, encoding='utf-8', stdout=subprocess.PIPE)
 
@@ -124,4 +124,4 @@ def ScanPorts(database, nomos, portspath, origins=None):
         portlist = subprocess.run(['make', '-C', os.path.join(portspath, category), '-V', 'SUBDIR'], check=True, encoding='utf-8', stdout=subprocess.PIPE)
 
         for port in portlist.stdout.split():
-            ScanPort(database, nomos, portspath, os.path.join(category, port))
+            ScanPort(origin=os.path.join(category, port), database=database, nomos=nomos, portspath=portspath, timeout=timeout)

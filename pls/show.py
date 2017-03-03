@@ -43,11 +43,12 @@ def ShowPort(origin, port_licenses, file_licenses):
                 print('    {}'.format(file_))
 
 
-def ShowPorts(database, origins):
-    if origins:
-        for origin in origins:
-            row = database.cursor().execute('SELECT origin, port_licenses, file_licenses FROM ports WHERE origin=?', (origin,)).fetchone()
-            ShowPort(row[0], json.loads(row[1]), json.loads(row[2]))
-    else:
-        for row in database.cursor().execute('SELECT origin, port_licenses, file_licenses FROM ports'):
-            ShowPort(row[0], json.loads(row[1]), json.loads(row[2]))
+def ShowOrigins(database, origins):
+    for origin in origins:
+        row = database.cursor().execute('SELECT origin, port_licenses, file_licenses FROM ports WHERE origin=?', (origin,)).fetchone()
+        ShowPort(row[0], json.loads(row[1]), json.loads(row[2]))
+
+
+def ShowAllPorts(database):
+    for row in database.cursor().execute('SELECT origin, port_licenses, file_licenses FROM ports'):
+        ShowPort(row[0], json.loads(row[1]), json.loads(row[2]))
