@@ -5,8 +5,8 @@ in the ports with licenses extracted from port sources.
 
 ## Depends
 
-* python3 (lang/python3)
-* py3-sqlite3 (databases/py35-sqlite3)
+* python36+ (lang/python36)
+* py3-sqlite3 (databases/py36-sqlite3)
 * nomos license scanner (devel/fossology-nomos-standalone)
 
 ## Usage
