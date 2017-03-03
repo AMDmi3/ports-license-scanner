@@ -64,7 +64,7 @@ def ScanPort(database, nomos, portspath, origin):
 
     try:
         VerbosePrint('    Extracting port')
-        subprocess.run(['make', '-C', portpath, 'clean', 'extract'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(['make', '-C', portpath, 'clean', 'extract'], check=True, timeout=60, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except KeyboardInterrupt:
         raise
     except:
