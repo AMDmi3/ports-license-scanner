@@ -62,6 +62,7 @@ def Main():
 
     database = Database(GetDatabasePath())
     os.environ['WRKDIRPREFIX'] = GetWrkdirprefixPath()
+    os.environ['BATCH'] = '1'
 
     if options.mode == 'reset':
         VerbosePrint('Clearing database')
