@@ -30,15 +30,6 @@ from pls.show import ShowPorts
 from pls.verbose import EnableVerbose, VerbosePrint
 
 
-def GetDefaultDatabasePath():
-    if 'XDG_DATA_HOME' in os.environ:
-        return os.path.join(os.environ['XDG_DATA_HOME'], 'ports-license-scanner', 'database.sqlite')
-    elif 'HOME' in os.environ:
-        return os.path.join(os.environ['HOME'], '.local', 'share', 'ports-license-scanner', 'database.sqlite')
-    else:
-        return 'ports-license-scanner-database.sqlite'
-
-
 def Main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true', help='enable verbose operation')
