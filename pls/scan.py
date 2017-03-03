@@ -62,18 +62,25 @@ def ScanPort(origin, database, nomos, portspath, timeout):
     port_licenses = license.split()
     file_licenses = {}
 
+    lines = []
+    nomos_done = False
+
     try:
         VerbosePrint('    Extracting port')
         subprocess.run(['make', '-C', portpath, 'clean', 'extract'], check=True, timeout=60, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        VerbosePrint('    Running nomos')
+        nomosoutput = subprocess.run(['find', wrkdir, '-type', 'f', '-a', '('] + maskargs + [')', '-exec', nomos, '-l', '{}', ';'], check=True, timeout=timeout, encoding='utf-8', stdout=subprocess.PIPE)
+        lines = nomosoutput.stdout.split('\n')
+
+        nomos_done = True
     except KeyboardInterrupt:
         raise
+    except TimeoutExpired:
+        VerbosePrint('      Timeout expired, skipping')
     except:
         VerbosePrint('      Failed to extract, skipping')
-        return
 
-    VerbosePrint('    Running nomos')
-    nomosoutput = subprocess.run(['find', wrkdir, '-type', 'f', '-a', '('] + maskargs + [')', '-exec', nomos, '-l', '{}', ';'], check=True, encoding='utf-8', stdout=subprocess.PIPE)
-    lines = nomosoutput.stdout.split('\n')
     for line in lines:
         if not line:
             continue
@@ -81,11 +88,15 @@ def ScanPort(origin, database, nomos, portspath, timeout):
         match = re.match('File (.*) contains license\(s\) (.*)$', line)
         if match:
             nomos_file = match.group(1)
-            if wrkdir not in nomos_file:
+
+            wrkdirpos = nomos_file.find(wrkdir)
+
+            if wrkdirpos == -1:
                 VerbosePrint('      Unexpected path outside wrkdir: {}'.format(nomos_file))
                 continue
+            else:
+                nomos_file = nomos_file[wrkdirpos + len(wrkdir) + 1:]
 
-            nomos_file = nomos_file[len(wrkdir) + 1:]
             nomos_licenses = match.group(2).split()
 
             if nomos_licenses == ['No_license_found']:
@@ -100,11 +111,12 @@ def ScanPort(origin, database, nomos, portspath, timeout):
     VerbosePrint('    Cleaning up')
     subprocess.run(['make', '-C', portpath, 'clean'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    VerbosePrint('    Saving to database')
+    if nomos_done:
+        VerbosePrint('    Saving to database')
 
-    database.cursor().execute('INSERT INTO ports (origin, port_licenses, file_licenses) VALUES(?, ?, ?)', (origin, json.dumps(port_licenses), json.dumps(file_licenses)))
+        database.cursor().execute('INSERT INTO ports (origin, port_licenses, file_licenses) VALUES(?, ?, ?)', (origin, json.dumps(port_licenses), json.dumps(file_licenses)))
 
-    database.commit()
+        database.commit()
 
     VerbosePrint('    Done')
 
