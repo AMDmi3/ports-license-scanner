@@ -76,7 +76,7 @@ def ScanPort(origin, database, nomos, portspath, timeout):
         nomos_done = True
     except KeyboardInterrupt:
         raise
-    except TimeoutExpired:
+    except subprocess.TimeoutExpired:
         VerbosePrint('      Timeout expired, skipping')
     except:
         VerbosePrint('      Failed to extract, skipping')
