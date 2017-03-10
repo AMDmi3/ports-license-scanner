@@ -109,7 +109,7 @@ def ScanPort(origin, database, nomos, portspath, timeout):
             VerbosePrint('      Unexpected output from nomos: {}'.format(line))
 
     VerbosePrint('    Cleaning up')
-    subprocess.run(['make', '-C', portpath, 'clean'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(['make', '-C', portpath, 'clean'], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     if nomos_done:
         VerbosePrint('    Saving to database')
